@@ -67,6 +67,16 @@ export const listClassNames = asyncHandler(async (req, res) => {
   sendSuccess(res, { data: names });
 });
 
+// Lightweight list of every class-section, used by dropdowns (student form and filters).
+export const listClassOptions = asyncHandler(async (req, res) => {
+  const items = await Class.find()
+    .select('name section')
+    .sort({ name: 1, section: 1 })
+    .collation(NATURAL_SORT)
+    .lean();
+  sendSuccess(res, { data: items });
+});
+
 export const getClass = asyncHandler(async (req, res) => {
   const cls = await Class.findById(req.params.id);
   if (!cls) throw ApiError.notFound('Class not found');
@@ -134,14 +144,4 @@ export const deleteClass = asyncHandler(async (req, res) => {
 
   await cls.deleteOne();
   sendSuccess(res, { message: `${label(cls)} was deleted` });
-
-  // Lightweight list of every class-section, used by dropdowns (student form and filters).
-export const listClassOptions = asyncHandler(async (req, res) => {
-    const items = await Class.find()
-      .select('name section')
-      .sort({ name: 1, section: 1 })
-      .collation(NATURAL_SORT)
-      .lean();
-    sendSuccess(res, { data: items });
-  });
 });
