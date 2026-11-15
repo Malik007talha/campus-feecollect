@@ -1,3 +1,6 @@
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+
 import express from 'express';
 import cors from 'cors';
 import { env } from './config/env.js';
