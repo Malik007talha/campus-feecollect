@@ -1,0 +1,36 @@
+import axios from 'axios';
+
+export const TOKEN_KEY = 'fc_token';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  timeout: 30000, // generous: free-tier servers can be slow to wake up
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Expired or invalid session: clear it and send the user to login.
+    if (error.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.assign('/login');
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Turns any error into a short, human-readable message.
+export function getErrorMessage(error) {
+  if (error.response?.data?.message) return error.response.data.message;
+  if (error.code === 'ECONNABORTED') return 'The server is taking too long to respond. Please try again.';
+  if (error.request) return 'Cannot reach the server. Check your internet connection.';
+  return 'Something went wrong. Please try again.';
+}
+
+export default api;
