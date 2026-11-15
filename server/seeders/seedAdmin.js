@@ -5,7 +5,7 @@ import User from '../models/User.js';
 await connectDB();
 
 const users = [
-  { name: 'Malik Talha Asif', username: 'admin', email: 'admin@campusfeecollect.pk', password: 'Admin@1234', role: 'admin' },
+  { name: 'Malik Talha Asif', username: 'admin', email: 'admin@campusfeecollect.pk', password: 'Admin@12345', role: 'admin' },
   { name: 'Ayesha Khan', username: 'accountant', email: 'accountant@campusfeecollect.pk', password: 'Account@12345', role: 'accountant' },
 ];
 

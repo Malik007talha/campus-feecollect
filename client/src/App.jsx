@@ -3,6 +3,8 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
 import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import ClassesPage from './pages/classes/ClassesPage';
+import StudentsPage from './pages/students/StudentsPage';
 import ComingSoon from './components/common/ComingSoon';
 
 const placeholders = [
@@ -22,6 +24,8 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
+          <Route path="classes" element={<ClassesPage />} />
+          <Route path="students" element={<StudentsPage />} />
           {placeholders.map(([path, title]) => (
             <Route key={path} path={path} element={<ComingSoon title={title} />} />
           ))}
