@@ -6,11 +6,10 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import ClassesPage from './pages/classes/ClassesPage';
 import StudentsPage from './pages/students/StudentsPage';
 import ImportStudentsPage from './pages/students/ImportStudentsPage';
+import FeeStructurePage from './pages/fee-structure/FeeStructurePage';
 import ComingSoon from './components/common/ComingSoon';
 
 const placeholders = [
-  ['students', 'Students'],
-  ['classes', 'Classes'],
   ['vouchers', 'Fee Vouchers'],
   ['payments', 'Payments'],
   ['defaulters', 'Unpaid Fees'],
@@ -33,7 +32,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute roles={['admin']} />}>
             <Route path="students/import" element={<ImportStudentsPage />} />
-            <Route path="fee-structure" element={<ComingSoon title="Fee Structure" />} />
+            <Route path="fee-structure" element={<FeeStructurePage />} />
             <Route path="users" element={<ComingSoon title="Users" />} />
             <Route path="settings" element={<ComingSoon title="Settings" />} />
           </Route>

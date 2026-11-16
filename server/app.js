@@ -8,6 +8,7 @@ import healthRoutes from './routes/health.routes.js';
 
 import classRoutes from './routes/class.routes.js';
 import studentRoutes from './routes/student.routes.js';
+import feeRoutes from './routes/fee.routes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/fees', feeRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
