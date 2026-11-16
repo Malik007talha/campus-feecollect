@@ -7,6 +7,8 @@ import ClassesPage from './pages/classes/ClassesPage';
 import StudentsPage from './pages/students/StudentsPage';
 import ImportStudentsPage from './pages/students/ImportStudentsPage';
 import FeeStructurePage from './pages/fee-structure/FeeStructurePage';
+import VouchersPage from './pages/vouchers/VouchersPage';
+import GenerateVouchersPage from './pages/vouchers/GenerateVouchersPage';
 import ComingSoon from './components/common/ComingSoon';
 
 const placeholders = [
@@ -26,6 +28,8 @@ export default function App() {
           <Route index element={<DashboardPage />} />
           <Route path="classes" element={<ClassesPage />} />
           <Route path="students" element={<StudentsPage />} />
+          <Route path="vouchers" element={<VouchersPage />} />
+          <Route path="vouchers/generate" element={<GenerateVouchersPage />} />
           {placeholders.map(([path, title]) => (
             <Route key={path} path={path} element={<ComingSoon title={title} />} />
           ))}

@@ -35,6 +35,7 @@ export const translations = {
     section: 'Section',
     actions: 'Actions',
     className: 'Class name',
+    generateVouchers: 'Generate Vouchers',
   },
   ur: {
     appName: 'کیمپس فی کلیکٹ',
@@ -72,5 +73,6 @@ export const translations = {
     section: 'سیکشن',
     actions: 'کارروائی',
     className: 'کلاس کا نام',
+    generateVouchers: 'واؤچرز بنائیں',
   },
 };
