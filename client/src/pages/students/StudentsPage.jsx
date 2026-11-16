@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Pencil, Trash2, Eye, Users, Loader2 } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Eye, Users, Loader2, FileSpreadsheet } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
@@ -23,6 +23,7 @@ const selectClass =
 
 function RowActions({ student, isAdmin, onView, onEdit, onDelete, t }) {
   const btn = 'inline-flex min-h-10 items-center gap-1.5 rounded-md px-3 text-sm font-medium hover:bg-page';
+  
   return (
     <div className="flex flex-wrap gap-1">
       <button onClick={() => onView(student)} className={`${btn} text-primary-700`}>
@@ -135,13 +136,23 @@ export default function StudentsPage() {
       <Plus className="h-5 w-5" /> {t('addStudent')}
     </button>
   );
-
+  const headerActions = isAdmin && (
+    <>
+      <Link
+        to="/students/import"
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-base font-semibold text-primary-700 hover:bg-page"
+      >
+        <FileSpreadsheet className="h-5 w-5" /> {t('importExcel')}
+      </Link>
+      {addButton}
+    </>
+  );
   return (
     <div>
       <PageHeader
         title={t('students')}
         subtitle="Find a student by name, roll number or parent. Use the filters to see one class or section."
-        actions={addButton}
+        actions={headerActions}
       />
 
       <div className="mb-4 space-y-3">
