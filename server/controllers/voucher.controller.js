@@ -1,6 +1,7 @@
 import Voucher from '../models/Voucher.js';
 import { generateSchema, listVouchersQuerySchema } from '../validators/voucher.validator.js';
 import { buildPlan, summarizePlan, generateVouchers as runGeneration } from '../services/voucher.service.js';
+import { refreshFines } from '../services/fine.service.js';
 import { monthLabel } from '../utils/dates.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -74,6 +75,8 @@ export const listVouchers = asyncHandler(async (req, res) => {
     filter.$or = [{ voucherNo: rx }, { studentName: rx }, { rollNo: rx }, { parentName: rx }];
   }
 
+  await refreshFines(filter); // late fines are always up to date when vouchers are listed
+
   const [items, total, sums] = await Promise.all([
     Voucher.find(filter).select('-__v').sort({ voucherNo: 1 }).skip(skip).limit(limit).lean(),
     Voucher.countDocuments(filter),
@@ -96,6 +99,7 @@ export const listVouchers = asyncHandler(async (req, res) => {
 });
 
 export const getVoucher = asyncHandler(async (req, res) => {
+  await refreshFines({ _id: req.params.id });
   const voucher = await Voucher.findById(req.params.id).select('-__v').populate('generatedBy', 'name');
   if (!voucher) throw ApiError.notFound('Voucher not found');
   sendSuccess(res, { data: voucher });

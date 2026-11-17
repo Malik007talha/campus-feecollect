@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
-// One document holds the school's details, printed on every voucher.
+export const FINE_TYPES = ['none', 'fixed', 'per_day', 'percent'];
+
+// One document holds the school's details, printed on every voucher, and the late fine policy.
 const schoolSettingsSchema = new mongoose.Schema(
   {
     key: { type: String, default: 'default', unique: true },
@@ -11,6 +13,13 @@ const schoolSettingsSchema = new mongoose.Schema(
     accountTitle: { type: String, default: '', trim: true, maxlength: 80 },
     accountNumber: { type: String, default: '', trim: true, maxlength: 40 },
     paymentInstructions: { type: String, default: '', trim: true, maxlength: 200 },
+
+    // Late fine policy. 'none' means no fine is ever charged.
+    fineType: { type: String, enum: FINE_TYPES, default: 'none' },
+    fineAmount: { type: Number, default: 0, min: 0 }, // Rs: once (fixed) or per day (per_day)
+    finePercent: { type: Number, default: 0, min: 0, max: 100 },
+    fineGraceDays: { type: Number, default: 0, min: 0, max: 60 },
+    fineCap: { type: Number, default: 0, min: 0 }, // 0 = no maximum
   },
   { timestamps: true }
 );

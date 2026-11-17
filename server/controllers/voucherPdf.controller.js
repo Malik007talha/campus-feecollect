@@ -1,6 +1,7 @@
 import Voucher from '../models/Voucher.js';
 import SchoolSettings from '../models/SchoolSettings.js';
 import { buildVouchersPdf } from '../services/voucherPdf.service.js';
+import { refreshFines } from '../services/fine.service.js';
 import { listVouchersQuerySchema } from '../validators/voucher.validator.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -18,6 +19,7 @@ function sendPdf(res, buffer, filename) {
 }
 
 export const downloadVoucherPdf = asyncHandler(async (req, res) => {
+  await refreshFines({ _id: req.params.id }); // the PDF always shows today's fine
   const voucher = await Voucher.findById(req.params.id).lean();
   if (!voucher) throw ApiError.notFound('Voucher not found');
   const settings = await SchoolSettings.getDefault();
@@ -46,6 +48,8 @@ export const downloadBulkPdf = asyncHandler(async (req, res) => {
       `That is ${count} vouchers. Please download up to ${MAX_PDF_VOUCHERS} at a time by choosing a class or section.`
     );
   }
+
+  await refreshFines(filter);
 
   const vouchers = await Voucher.find(filter)
     .sort({ className: 1, section: 1, rollNo: 1 })

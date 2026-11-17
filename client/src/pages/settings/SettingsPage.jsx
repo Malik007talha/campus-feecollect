@@ -9,6 +9,7 @@ import { settingsService } from '../../services/settingsService';
 import { getErrorMessage } from '../../services/api';
 import PageHeader from '../../components/common/PageHeader';
 import FormField, { inputClass } from '../../components/common/FormField';
+import FinePolicyForm from '../../components/settings/FinePolicyForm';
 
 const schema = z.object({
   schoolName: z.string().trim().min(2, 'Please enter the school name').max(80, 'School name is too long'),
@@ -153,6 +154,10 @@ export default function SettingsPage() {
           {t('save')}
         </button>
       </form>
-    </div>
-  );
+
+<div className="mt-6">
+  <FinePolicyForm />
+</div>
+</div>
+);
 }
