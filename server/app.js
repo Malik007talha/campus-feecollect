@@ -14,6 +14,8 @@ import settingsRoutes from './routes/settings.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import defaulterRoutes from './routes/defaulter.routes.js';
 import reminderRoutes from './routes/reminder.routes.js';
+import reportRoutes from './routes/report.routes.js';
+import dashboardRoutes from './routes/dashboard.routes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -44,6 +46,8 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/defaulters', defaulterRoutes);
 app.use('/api/reminders', reminderRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

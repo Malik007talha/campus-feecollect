@@ -46,3 +46,28 @@ html[dir="rtl"] body {
   outline: 3px solid var(--color-primary-500);
   outline-offset: 2px;
 }
+
+
+/* Printing (reports): hide menus and filters, show the full table */
+@page {
+  margin: 12mm;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .report-cards {
+    display: none !important;
+  }
+  .report-table-wrap {
+    display: block !important;
+    overflow: visible !important;
+  }
+  body {
+    background: #fff;
+  }
+  main {
+    padding: 0 !important;
+  }
+}

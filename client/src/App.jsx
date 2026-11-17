@@ -11,10 +11,9 @@ import VouchersPage from './pages/vouchers/VouchersPage';
 import GenerateVouchersPage from './pages/vouchers/GenerateVouchersPage';
 import PaymentsPage from './pages/payments/PaymentsPage';
 import DefaultersPage from './pages/defaulters/DefaultersPage';
+import ReportsPage from './pages/reports/ReportsPage';
 import SettingsPage from './pages/settings/SettingsPage';
 import ComingSoon from './components/common/ComingSoon';
-
-const placeholders = [['reports', 'Reports']];
 
 export default function App() {
   return (
@@ -30,9 +29,7 @@ export default function App() {
           <Route path="vouchers/generate" element={<GenerateVouchersPage />} />
           <Route path="payments" element={<PaymentsPage />} />
           <Route path="defaulters" element={<DefaultersPage />} />
-          {placeholders.map(([path, title]) => (
-            <Route key={path} path={path} element={<ComingSoon title={title} />} />
-          ))}
+          <Route path="reports" element={<ReportsPage />} />
 
           <Route element={<ProtectedRoute roles={['admin']} />}>
             <Route path="students/import" element={<ImportStudentsPage />} />

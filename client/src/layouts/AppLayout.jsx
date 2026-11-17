@@ -91,7 +91,7 @@ export default function AppLayout() {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-white px-4">
+        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-white px-4">
           <button
             onClick={() => setOpen(true)}
             aria-label={t('menu')}
