@@ -9,12 +9,11 @@ import ImportStudentsPage from './pages/students/ImportStudentsPage';
 import FeeStructurePage from './pages/fee-structure/FeeStructurePage';
 import VouchersPage from './pages/vouchers/VouchersPage';
 import GenerateVouchersPage from './pages/vouchers/GenerateVouchersPage';
+import PaymentsPage from './pages/payments/PaymentsPage';
 import SettingsPage from './pages/settings/SettingsPage';
 import ComingSoon from './components/common/ComingSoon';
 
 const placeholders = [
-  ['vouchers', 'Fee Vouchers'],
-  ['payments', 'Payments'],
   ['defaulters', 'Unpaid Fees'],
   ['reports', 'Reports'],
 ];
@@ -31,6 +30,7 @@ export default function App() {
           <Route path="students" element={<StudentsPage />} />
           <Route path="vouchers" element={<VouchersPage />} />
           <Route path="vouchers/generate" element={<GenerateVouchersPage />} />
+          <Route path="payments" element={<PaymentsPage />} />
           {placeholders.map(([path, title]) => (
             <Route key={path} path={path} element={<ComingSoon title={title} />} />
           ))}

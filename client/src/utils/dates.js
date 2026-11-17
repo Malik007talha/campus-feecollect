@@ -37,3 +37,16 @@ const MONTH_NAMES = [
   
   // Suggested due date: the 10th of the billing month. The user can change it.
   export const defaultDueDate = (month) => `${month}-10`;
+  // "2026-11-17": the calendar date in Pakistan for any moment in time
+export const pkDateString = (value = new Date()) =>
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Karachi',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date(value));
+  
+  export const todayDateString = () => pkDateString();
+  
+  // True when the due date was before today (Pakistan time)
+  export const isOverdue = (dueDate) => pkDateString(dueDate) < todayDateString();

@@ -36,6 +36,7 @@ export const translations = {
     actions: 'Actions',
     className: 'Class name',
     generateVouchers: 'Generate Vouchers',
+    recordPayment: 'Record Payment',
   },
   ur: {
     appName: 'کیمپس فی کلیکٹ',
@@ -74,5 +75,6 @@ export const translations = {
     actions: 'کارروائی',
     className: 'کلاس کا نام',
     generateVouchers: 'واؤچرز بنائیں',
+    recordPayment: 'ادائیگی درج کریں',
   },
 };

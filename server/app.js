@@ -11,6 +11,7 @@ import studentRoutes from './routes/student.routes.js';
 import feeRoutes from './routes/fee.routes.js';
 import voucherRoutes from './routes/voucher.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/students', studentRoutes);
 app.use('/api/fees', feeRoutes);
 app.use('/api/vouchers', voucherRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
