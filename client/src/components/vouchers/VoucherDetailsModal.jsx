@@ -1,5 +1,6 @@
 import Modal from '../common/Modal';
 import VoucherStatusBadge from './VoucherStatusBadge';
+import VoucherPdfButtons from './VoucherPdfButtons';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatRs, formatDate } from '../../utils/format';
 import { monthLabel } from '../../utils/dates';
@@ -24,13 +25,16 @@ export default function VoucherDetailsModal({ voucher, onClose }) {
       title={`Voucher ${voucher.voucherNo}`}
       onClose={onClose}
       footer={
-        <button
-          type="button"
-          onClick={onClose}
-          className="min-h-11 flex-1 rounded-md border border-line bg-white px-4 text-base font-medium hover:bg-page sm:flex-none"
-        >
-          {t('close')}
-        </button>
+        <div className="flex w-full flex-wrap items-center gap-2 sm:justify-end">
+          <VoucherPdfButtons voucherId={voucher._id} fileName={`fee-voucher-${voucher.voucherNo}`} />
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-11 rounded-md border border-line bg-white px-4 text-base font-medium hover:bg-page"
+          >
+            {t('close')}
+          </button>
+        </div>
       }
     >
       <div className="flex items-start justify-between gap-3">

@@ -9,6 +9,7 @@ import { formatRs, formatDate } from '../../utils/format';
 import { currentMonthKey, monthOptions, defaultDueDate } from '../../utils/dates';
 import PageHeader from '../../components/common/PageHeader';
 import FormField, { inputClass } from '../../components/common/FormField';
+import VoucherPdfButtons from '../../components/vouchers/VoucherPdfButtons';
 
 const MONTH_CHOICES = monthOptions(6, 2);
 
@@ -386,6 +387,7 @@ export default function GenerateVouchersPage() {
           >
             View vouchers
           </Link>
+          {r.created > 0 && <VoucherPdfButtons bulk params={{ month: r.month }} />}
           <button
             onClick={startOver}
             className="min-h-11 rounded-md border border-line bg-white px-4 text-base font-medium hover:bg-page"

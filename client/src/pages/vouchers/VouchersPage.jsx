@@ -13,11 +13,14 @@ import PageHeader from '../../components/common/PageHeader';
 import EmptyState from '../../components/common/EmptyState';
 import VoucherStatusBadge from '../../components/vouchers/VoucherStatusBadge';
 import VoucherDetailsModal from '../../components/vouchers/VoucherDetailsModal';
+import VoucherPdfButtons from '../../components/vouchers/VoucherPdfButtons';
 
 const PAGE_SIZE = 20;
 const MONTH_CHOICES = [...monthOptions(12, 3)].reverse(); // newest first
 const selectClass =
   'min-h-11 w-full rounded-md border border-line bg-white px-3 text-base focus:border-primary-600 focus:outline-none';
+const linkBtn =
+  'inline-flex min-h-10 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-primary-700 hover:bg-page';
 
 function Stat({ label, value }) {
   return (
@@ -51,21 +54,26 @@ export default function VouchersPage() {
     [classOptions, className]
   );
 
+  // The same filters are used for the list and for "Download all".
+  const filterParams = useMemo(() => {
+    const p = {};
+    if (month) p.month = month;
+    if (debouncedSearch) p.search = debouncedSearch;
+    if (className) p.className = className;
+    if (section) p.section = section;
+    if (status) p.status = status;
+    return p;
+  }, [month, debouncedSearch, className, section, status]);
+
   const load = useCallback(async () => {
     setState((s) => ({ ...s, loading: true, error: '' }));
     try {
-      const params = { page, limit: PAGE_SIZE };
-      if (month) params.month = month;
-      if (debouncedSearch) params.search = debouncedSearch;
-      if (className) params.className = className;
-      if (section) params.section = section;
-      if (status) params.status = status;
-      const res = await voucherService.list(params);
+      const res = await voucherService.list({ page, limit: PAGE_SIZE, ...filterParams });
       setState({ loading: false, error: '', items: res.data.items, summary: res.data.summary, pagination: res.pagination });
     } catch (err) {
       setState((s) => ({ ...s, loading: false, error: getErrorMessage(err) }));
     }
-  }, [page, month, debouncedSearch, className, section, status]);
+  }, [page, filterParams]);
 
   useEffect(() => {
     load();
@@ -98,12 +106,19 @@ export default function VouchersPage() {
     </Link>
   );
 
+  const headerActions = (
+    <>
+      {month && !error && items.length > 0 && <VoucherPdfButtons bulk params={filterParams} />}
+      {generateButton}
+    </>
+  );
+
   return (
     <div>
       <PageHeader
         title={t('feeVouchers')}
-        subtitle="Every student's monthly fee voucher. Generate a month's vouchers in one step, then find any voucher here."
-        actions={generateButton}
+        subtitle="Every student's monthly fee voucher. Generate a month's vouchers, then download or print them."
+        actions={headerActions}
       />
 
       <div className="mb-4 space-y-3">
@@ -226,12 +241,12 @@ export default function VouchersPage() {
                       <VoucherStatusBadge status={v.status} />
                     </td>
                     <td className="px-4 py-2">
-                      <button
-                        onClick={() => setViewing(v)}
-                        className="inline-flex min-h-10 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-primary-700 hover:bg-page"
-                      >
-                        <Eye className="h-4 w-4" /> {t('view')}
-                      </button>
+                      <div className="flex flex-wrap gap-1">
+                        <button onClick={() => setViewing(v)} className={linkBtn}>
+                          <Eye className="h-4 w-4" /> {t('view')}
+                        </button>
+                        <VoucherPdfButtons voucherId={v._id} fileName={`fee-voucher-${v.voucherNo}`} />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -267,13 +282,11 @@ export default function VouchersPage() {
                     <dd>{formatRs(v.total - v.paid)}</dd>
                   </div>
                 </dl>
-                <div className="mt-3 border-t border-line pt-2">
-                  <button
-                    onClick={() => setViewing(v)}
-                    className="inline-flex min-h-10 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-primary-700 hover:bg-page"
-                  >
+                <div className="mt-3 flex flex-wrap gap-1 border-t border-line pt-2">
+                  <button onClick={() => setViewing(v)} className={linkBtn}>
                     <Eye className="h-4 w-4" /> {t('view')}
                   </button>
+                  <VoucherPdfButtons voucherId={v._id} fileName={`fee-voucher-${v.voucherNo}`} />
                 </div>
               </li>
             ))}

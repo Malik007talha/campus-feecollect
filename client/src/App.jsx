@@ -9,6 +9,7 @@ import ImportStudentsPage from './pages/students/ImportStudentsPage';
 import FeeStructurePage from './pages/fee-structure/FeeStructurePage';
 import VouchersPage from './pages/vouchers/VouchersPage';
 import GenerateVouchersPage from './pages/vouchers/GenerateVouchersPage';
+import SettingsPage from './pages/settings/SettingsPage';
 import ComingSoon from './components/common/ComingSoon';
 
 const placeholders = [
@@ -38,7 +39,7 @@ export default function App() {
             <Route path="students/import" element={<ImportStudentsPage />} />
             <Route path="fee-structure" element={<FeeStructurePage />} />
             <Route path="users" element={<ComingSoon title="Users" />} />
-            <Route path="settings" element={<ComingSoon title="Settings" />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>
       </Route>
