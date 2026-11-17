@@ -6,7 +6,7 @@ export const FINE_TYPES = ['none', 'fixed', 'per_day', 'percent'];
 const schoolSettingsSchema = new mongoose.Schema(
   {
     key: { type: String, default: 'default', unique: true },
-    schoolName: { type: String, default: 'My School', trim: true, maxlength: 80 },
+    schoolName: { type: String, default: 'School Name', trim: true, maxlength: 80 },
     address: { type: String, default: '', trim: true, maxlength: 120 },
     phone: { type: String, default: '', trim: true, maxlength: 30 },
     bankName: { type: String, default: '', trim: true, maxlength: 60 },
@@ -29,7 +29,7 @@ schoolSettingsSchema.statics.getDefault = async function getDefault() {
   try {
     return await this.findOneAndUpdate(
       { key: 'default' },
-      { $setOnInsert: { schoolName: 'My School' } },
+      { $setOnInsert: { schoolName: 'School Name' } },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     ).lean();
   } catch (err) {

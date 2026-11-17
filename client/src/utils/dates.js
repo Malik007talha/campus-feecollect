@@ -50,3 +50,12 @@ export const pkDateString = (value = new Date()) =>
   
   // True when the due date was before today (Pakistan time)
   export const isOverdue = (dueDate) => pkDateString(dueDate) < todayDateString();
+  
+  // How many whole days after the due date it is today (Pakistan time)
+export function daysOverdue(dueDate) {
+  const dayNumber = (text) => {
+    const [y, m, d] = text.split('-').map(Number);
+    return Date.UTC(y, m - 1, d) / 86400000;
+  };
+  return dayNumber(todayDateString()) - dayNumber(pkDateString(dueDate));
+}

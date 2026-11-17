@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
         <SectionTitle>School details</SectionTitle>
         <FormField id="schoolName" label="School name" required error={errors.schoolName?.message}>
-          <input id="schoolName" placeholder="e.g. My School" className={inputClass} {...register('schoolName')} />
+          <input id="schoolName" placeholder="e.g. School Name" className={inputClass} {...register('schoolName')} />
         </FormField>
         <FormField id="address" label="Address (optional)" error={errors.address?.message}>
           <input id="address" placeholder="e.g. Street 5, F-8, Islamabad" className={inputClass} {...register('address')} />

@@ -65,7 +65,7 @@ export async function createPayment({ voucherId, amount, method, date, note, use
             },
           },
         ],
-        { session, returnDocument: 'after' }
+        { session, returnDocument: 'after', updatePipeline: true }
       ).lean();
 
       if (!updated) throw await explainFailure(voucherId, amount, session);
