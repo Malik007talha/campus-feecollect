@@ -4,7 +4,7 @@
 Generate every student's monthly fee voucher in one click, print three-copy PDF vouchers, record full or partial payments, add late fines automatically, and see who has not paid.
 
 - **Live app:** https://campus-feecollect.vercel.app
-- **Live API:** https://YOUR-API.onrender.com/api/health
+- **Live API:** https://api-campus-feecollect.onrender.com
 - **Demo video:** (add the link here)
 - **Developer:** Malik Talha Asif
 
