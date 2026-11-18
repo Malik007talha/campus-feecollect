@@ -12,8 +12,8 @@ import GenerateVouchersPage from './pages/vouchers/GenerateVouchersPage';
 import PaymentsPage from './pages/payments/PaymentsPage';
 import DefaultersPage from './pages/defaulters/DefaultersPage';
 import ReportsPage from './pages/reports/ReportsPage';
+import UsersPage from './pages/users/UsersPage';
 import SettingsPage from './pages/settings/SettingsPage';
-import ComingSoon from './components/common/ComingSoon';
 
 export default function App() {
   return (
@@ -34,7 +34,7 @@ export default function App() {
           <Route element={<ProtectedRoute roles={['admin']} />}>
             <Route path="students/import" element={<ImportStudentsPage />} />
             <Route path="fee-structure" element={<FeeStructurePage />} />
-            <Route path="users" element={<ComingSoon title="Users" />} />
+            <Route path="users" element={<UsersPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>

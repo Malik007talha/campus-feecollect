@@ -4,7 +4,7 @@ export const TOKEN_KEY = 'fc_token';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  timeout: 30000, // generous: free-tier servers can be slow to wake up
+  timeout: 60000, // generous: free-tier servers can be slow to wake up
 });
 
 api.interceptors.request.use((config) => {

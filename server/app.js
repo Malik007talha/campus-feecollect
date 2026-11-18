@@ -3,6 +3,8 @@ import userRoutes from './routes/user.routes.js';
 
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import healthRoutes from './routes/health.routes.js';
 
@@ -20,6 +22,9 @@ import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
+app.set('trust proxy', 1); // Render sits behind a proxy; needed so rate limits see the real visitor IP
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-site' } }));
+
 const allowedOrigins = env.CLIENT_URL.split(',').map((o) => o.trim());
 
 app.use(
@@ -35,7 +40,30 @@ app.use(
 
 app.use(express.json({ limit: '1mb' }));
 
-app.use('/api/health', healthRoutes);
+const tooMany = (message) => (req, res) => res.status(429).json({ success: false, message, details: null });
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 1500,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: tooMany('Too many requests. Please wait a moment and try again.'),
+});
+
+// Only failed logins count, so staff are never locked out for logging in normally.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: tooMany('Too many failed login attempts. Please wait 15 minutes and try again.'),
+});
+
+app.use('/api/health', healthRoutes); // health check is not rate limited
+app.use('/api', apiLimiter);
+app.use('/api/auth/login', loginLimiter);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/classes', classRoutes);

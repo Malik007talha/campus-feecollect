@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+const strongPassword = z
+  .string()
+  .min(10, 'Use at least 10 characters')
+  .max(72, 'Use at most 72 characters')
+  .regex(/[A-Za-z]/, 'Include at least one letter')
+  .regex(/\d/, 'Include at least one number');
+
 export const loginSchema = z.object({
   identifier: z.string().trim().min(1, 'Enter your email or username'),
   password: z.string().min(1, 'Enter your password'),
@@ -8,12 +15,7 @@ export const loginSchema = z.object({
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Enter your current password'),
-    newPassword: z
-      .string()
-      .min(10, 'Use at least 10 characters')
-      .max(72, 'Use at most 72 characters')
-      .regex(/[A-Za-z]/, 'Include at least one letter')
-      .regex(/\d/, 'Include at least one number'),
+    newPassword: strongPassword,
   })
   .refine((d) => d.newPassword !== d.currentPassword, {
     message: 'The new password must be different from the current one',
@@ -30,7 +32,7 @@ export const createUserSchema = z.object({
     .max(30)
     .regex(/^[a-z0-9._]+$/, 'Use only letters, numbers, dot and underscore'),
   email: z.string().trim().toLowerCase().email('Enter a valid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: strongPassword,
   role: z.enum(['admin', 'accountant']),
 });
 
@@ -39,5 +41,5 @@ export const updateUserSchema = z.object({
   email: z.string().trim().toLowerCase().email().optional(),
   role: z.enum(['admin', 'accountant']).optional(),
   isActive: z.boolean().optional(),
-  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  password: strongPassword.optional(),
 });
