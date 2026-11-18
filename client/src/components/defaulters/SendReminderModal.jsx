@@ -13,6 +13,7 @@ const primaryBtn =
 export default function SendReminderModal({ target, onClose, onDone }) {
   const { t } = useLanguage();
   const [emailReady, setEmailReady] = useState(null); // null = checking
+  const [statusError, setStatusError] = useState('');
   const [step, setStep] = useState('form'); // form | done
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -22,7 +23,10 @@ export default function SendReminderModal({ target, onClose, onDone }) {
     reminderService
       .status()
       .then((s) => setEmailReady(s.email))
-      .catch(() => setEmailReady(false));
+      .catch((err) => {
+        setStatusError(getErrorMessage(err));
+        setEmailReady('unavailable');
+      });
   }, []);
 
   const send = async () => {
@@ -106,6 +110,13 @@ export default function SendReminderModal({ target, onClose, onDone }) {
       {error && (
         <div role="alert" className="mb-3 rounded-md bg-danger-50 p-3 text-sm text-danger-600">
           {error}
+        </div>
+      )}
+
+      {emailReady === 'unavailable' && (
+        <div role="alert" className="mb-3 flex items-start gap-2 rounded-md bg-danger-50 p-3 text-sm text-danger-600">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>Could not check the email setup because the server is unavailable: {statusError}</p>
         </div>
       )}
 
