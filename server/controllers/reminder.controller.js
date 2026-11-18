@@ -1,22 +1,23 @@
 import ReminderLog from '../models/ReminderLog.js';
-import {
-  sendReminderSchema,
-  listRemindersQuerySchema,
-} from '../validators/reminder.validator.js';
+import { sendReminderSchema, listRemindersQuerySchema } from '../validators/reminder.validator.js';
 import { findDefaulterIds, MAX_REMINDERS } from '../services/defaulter.service.js';
-import { sendReminders, emailConfigured, smsConfigured } from '../services/reminder.service.js';
+import { sendReminders, emailConfigured } from '../services/reminder.service.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 import { getPagination, buildPagination } from '../utils/pagination.js';
 
-// Tells the screen whether real email / SMS is set up or reminders run in test mode.
+// Tells the screen whether email is set up on the server.
 export const reminderStatus = asyncHandler(async (req, res) => {
-  sendSuccess(res, { data: { email: emailConfigured(), sms: smsConfigured() } });
+  sendSuccess(res, { data: { email: emailConfigured() } });
 });
 
 export const sendReminder = asyncHandler(async (req, res) => {
   const input = sendReminderSchema.parse(req.body);
+
+  if (!emailConfigured()) {
+    throw ApiError.badRequest('Email is not set up yet. The administrator must add the email settings (SMTP) to the server.');
+  }
 
   let ids = input.voucherIds;
   if (!ids) {
@@ -29,16 +30,10 @@ export const sendReminder = asyncHandler(async (req, res) => {
     }
   }
 
-  const { summary, results } = await sendReminders({
-    voucherIds: ids,
-    channel: input.channel,
-    force: input.force,
-    user: req.user,
-  });
+  const { summary, results } = await sendReminders({ voucherIds: ids, force: input.force, user: req.user });
 
   const parts = [];
-  if (summary.sent) parts.push(`${summary.sent} sent`);
-  if (summary.logged) parts.push(`${summary.logged} saved in test mode`);
+  if (summary.sent) parts.push(`${summary.sent} emailed`);
   if (summary.failed) parts.push(`${summary.failed} failed`);
   if (summary.skipped) parts.push(`${summary.skipped} skipped`);
 

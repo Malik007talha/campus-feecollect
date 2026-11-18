@@ -11,7 +11,6 @@ const dateText = (d) => new Date(d).toLocaleDateString('en-GB', { timeZone: 'Asi
 const short = (text) => String(text ?? '').slice(0, 300);
 
 export const emailConfigured = () => Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
-export const smsConfigured = () => Boolean(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && env.TWILIO_FROM);
 
 let transporter;
 function getTransporter() {
@@ -22,12 +21,13 @@ function getTransporter() {
       port,
       secure: port === 465,
       auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 20000,
     });
   }
   return transporter;
 }
-
-/* --------------------------------- Message text --------------------------------- */
 
 function emailText(v, school) {
   const balance = v.total - v.paid;
@@ -44,68 +44,16 @@ function emailText(v, school) {
     .join('\n\n');
 }
 
-function smsText(v, school) {
-  const balance = v.total - v.paid;
-  return `${school.schoolName}: Fee reminder for ${v.studentName} (${v.className}-${v.section}), voucher ${v.voucherNo}, ${monthLabel(v.month)}. Due ${dateText(v.dueDate)}. Pending ${rs(balance)}. Please pay soon. Ignore if already paid.`;
+// Errors that mean "email is not working at all", so there is no point trying the next student.
+const FATAL = new Set(['EAUTH', 'ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'EDNS']);
+
+function friendly(err) {
+  if (err.code === 'EAUTH') return 'The email server refused the login. Check SMTP_USER and SMTP_PASS (use a Gmail App password).';
+  if (FATAL.has(err.code)) return 'Could not connect to the email server. Check SMTP_HOST and SMTP_PORT, and the internet connection.';
+  return short(err.message);
 }
 
-const testModeLog = (channel, to, message) =>
-  console.log(`\n[REMINDER - TEST MODE, NOT SENT] ${channel.toUpperCase()} to ${to}\n${message}\n`);
-
-/* ------------------------------------ Senders ------------------------------------ */
-
-async function sendEmail(v, school) {
-  const to = v.student?.parentEmail;
-  if (!to) return { status: 'skipped', detail: 'No email address on file' };
-  const message = emailText(v, school);
-
-  if (!emailConfigured()) {
-    testModeLog('email', to, message);
-    return { status: 'logged', to, message, detail: 'Test mode: written to the server console, not sent' };
-  }
-  try {
-    await getTransporter().sendMail({
-      from: env.SMTP_FROM || env.SMTP_USER,
-      to,
-      subject: `Fee reminder: ${v.studentName} - ${monthLabel(v.month)}`,
-      text: message,
-    });
-    return { status: 'sent', to, message, detail: 'Email sent' };
-  } catch (err) {
-    return { status: 'failed', to, message, detail: short(err.message) };
-  }
-}
-
-async function sendSms(v, school) {
-  if (!v.parentPhone) return { status: 'skipped', detail: 'No phone number on file' };
-  const to = `+92${v.parentPhone.replace(/^0/, '')}`; // 03001234567 -> +923001234567
-  const message = smsText(v, school);
-
-  if (!smsConfigured()) {
-    testModeLog('sms', to, message);
-    return { status: 'logged', to, message, detail: 'Test mode: written to the server console, not sent' };
-  }
-  try {
-    const sid = env.TWILIO_ACCOUNT_SID;
-    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${Buffer.from(`${sid}:${env.TWILIO_AUTH_TOKEN}`).toString('base64')}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({ To: to, From: env.TWILIO_FROM, Body: message }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || `SMS service answered with status ${res.status}`);
-    return { status: 'sent', to, message, detail: 'SMS sent' };
-  } catch (err) {
-    return { status: 'failed', to, message, detail: short(err.message) };
-  }
-}
-
-/* ------------------------------------ Sending ------------------------------------ */
-
-export async function sendReminders({ voucherIds, channel, force, user }) {
+export async function sendReminders({ voucherIds, force, user }) {
   await refreshFines({ _id: { $in: voucherIds } }); // the message shows today's balance
 
   const [vouchers, school] = await Promise.all([
@@ -116,60 +64,76 @@ export async function sendReminders({ voucherIds, channel, force, user }) {
     SchoolSettings.getDefault(),
   ]);
 
-  const channels = channel === 'both' ? ['email', 'sms'] : [channel];
-
-  // Avoid messaging the same parent twice in one day, unless the user chose one student on purpose.
+  // Avoid emailing the same parent twice in one day, unless one student was chosen on purpose.
   const recent = force
     ? []
     : await ReminderLog.find({
         voucher: { $in: voucherIds },
-        channel: { $in: channels },
-        status: { $in: ['sent', 'logged'] },
+        channel: 'email',
+        status: 'sent',
         createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
       })
-        .select('voucher channel')
+        .select('voucher')
         .lean();
-  const recentSet = new Set(recent.map((r) => `${r.voucher}|${r.channel}`));
+  const recentSet = new Set(recent.map((r) => String(r.voucher)));
 
   const results = [];
-  const summary = { sent: 0, logged: 0, failed: 0, skipped: 0 };
-  const add = (v, ch, status, detail) => {
-    results.push({ voucherId: v._id, voucherNo: v.voucherNo, studentName: v.studentName, channel: ch, status, detail });
+  const summary = { sent: 0, failed: 0, skipped: 0 };
+  const add = (v, status, detail) => {
+    results.push({ voucherId: v._id, voucherNo: v.voucherNo, studentName: v.studentName, channel: 'email', status, detail });
     summary[status] += 1;
   };
 
+  let stopReason = '';
   for (const v of vouchers) {
-    for (const ch of channels) {
-      if (!['unpaid', 'partial'].includes(v.status)) {
-        add(v, ch, 'skipped', 'Already fully paid');
-        continue;
-      }
-      if (recentSet.has(`${v._id}|${ch}`)) {
-        add(v, ch, 'skipped', 'Already reminded in the last 24 hours');
-        continue;
-      }
-
-      const out = ch === 'email' ? await sendEmail(v, school) : await sendSms(v, school);
-      if (out.status === 'skipped') {
-        add(v, ch, 'skipped', out.detail);
-        continue;
-      }
-
-      await ReminderLog.create({
-        voucher: v._id,
-        voucherNo: v.voucherNo,
-        student: v.student?._id ?? v.student,
-        studentName: v.studentName,
-        channel: ch,
-        to: out.to,
-        status: out.status,
-        message: out.message,
-        error: out.status === 'failed' ? out.detail : '',
-        sentBy: user._id,
-        sentByName: user.name,
-      });
-      add(v, ch, out.status, out.detail);
+    if (stopReason) {
+      add(v, 'skipped', `Not tried: ${stopReason}`);
+      continue;
     }
+    if (!['unpaid', 'partial'].includes(v.status)) {
+      add(v, 'skipped', 'Already fully paid');
+      continue;
+    }
+    if (recentSet.has(String(v._id))) {
+      add(v, 'skipped', 'Already emailed in the last 24 hours');
+      continue;
+    }
+    const to = v.student?.parentEmail;
+    if (!to) {
+      add(v, 'skipped', 'No email address on file. Add the parent email on the student.');
+      continue;
+    }
+
+    const message = emailText(v, school);
+    let status = 'sent';
+    let detail = 'Email sent';
+    try {
+      await getTransporter().sendMail({
+        from: env.SMTP_FROM || env.SMTP_USER,
+        to,
+        subject: `Fee reminder: ${v.studentName} - ${monthLabel(v.month)}`,
+        text: message,
+      });
+    } catch (err) {
+      status = 'failed';
+      detail = friendly(err);
+      if (FATAL.has(err.code)) stopReason = detail;
+    }
+
+    await ReminderLog.create({
+      voucher: v._id,
+      voucherNo: v.voucherNo,
+      student: v.student?._id ?? v.student,
+      studentName: v.studentName,
+      channel: 'email',
+      to,
+      status,
+      message,
+      error: status === 'failed' ? detail : '',
+      sentBy: user._id,
+      sentByName: user.name,
+    });
+    add(v, status, detail);
   }
 
   return { summary, results };

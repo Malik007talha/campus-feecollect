@@ -19,7 +19,6 @@ export const sendReminderSchema = z
   .object({
     voucherIds: z.array(objectId).min(1, 'Choose at least one student').max(100, 'You can remind up to 100 students at a time').optional(),
     filters: defaulterQuerySchema.optional(),
-    channel: z.enum(['email', 'sms', 'both'], 'Choose how to send the reminder'),
     force: z.boolean().optional().default(false),
   })
   .refine((d) => d.voucherIds || d.filters, { message: 'Choose who to remind', path: ['voucherIds'] });
