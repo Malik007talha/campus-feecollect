@@ -5,7 +5,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 // Verifies the token and loads the user from the database on every request,
-// so deactivated users lose access immediately.
+// so deactivated users and old sessions lose access immediately.
 export const protect = asyncHandler(async (req, res, next) => {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
@@ -14,6 +14,10 @@ export const protect = asyncHandler(async (req, res, next) => {
   const decoded = jwt.verify(token, env.JWT_SECRET);
   const user = await User.findById(decoded.id);
   if (!user || !user.isActive) throw ApiError.unauthorized('Your account is not active');
+
+  if (user.passwordChangedAt && Math.floor(user.passwordChangedAt.getTime() / 1000) > decoded.iat) {
+    throw ApiError.unauthorized('Your password was changed. Please log in again.');
+  }
 
   req.user = user;
   next();

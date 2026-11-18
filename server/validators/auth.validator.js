@@ -5,6 +5,21 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Enter your password'),
 });
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Enter your current password'),
+    newPassword: z
+      .string()
+      .min(10, 'Use at least 10 characters')
+      .max(72, 'Use at most 72 characters')
+      .regex(/[A-Za-z]/, 'Include at least one letter')
+      .regex(/\d/, 'Include at least one number'),
+  })
+  .refine((d) => d.newPassword !== d.currentPassword, {
+    message: 'The new password must be different from the current one',
+    path: ['newPassword'],
+  });
+
 export const createUserSchema = z.object({
   name: z.string().trim().min(2, 'Name is too short').max(80),
   username: z

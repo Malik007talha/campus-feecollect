@@ -26,14 +26,16 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ROLES, default: 'accountant' },
     isActive: { type: Boolean, default: true },
     lastLoginAt: { type: Date },
+    passwordChangedAt: { type: Date },
   },
   { timestamps: true }
 );
 
 userSchema.pre('save', async function hashPassword() {
-    if (!this.isModified('password')) return;
-    this.password = await bcrypt.hash(this.password, 12);
-  });
+  if (!this.isModified('password')) return;
+  this.password = await bcrypt.hash(this.password, 12);
+  if (!this.isNew) this.passwordChangedAt = new Date();
+});
 
 userSchema.methods.comparePassword = function comparePassword(plain) {
   return bcrypt.compare(plain, this.password);
@@ -42,6 +44,7 @@ userSchema.methods.comparePassword = function comparePassword(plain) {
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
     delete ret.password;
+    delete ret.passwordChangedAt;
     delete ret.__v;
     return ret;
   },

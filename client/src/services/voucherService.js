@@ -5,4 +5,5 @@ export const voucherService = {
   generate: (payload) => api.post('/vouchers/generate', payload).then((r) => r.data),
   list: (params) => api.get('/vouchers', { params }).then((r) => r.data),
   get: (id) => api.get(`/vouchers/${id}`).then((r) => r.data.data),
+  remove: (id, reason) => api.delete(`/vouchers/${id}`, { data: { reason } }).then((r) => r.data),
 };

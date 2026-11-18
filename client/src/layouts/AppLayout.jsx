@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard, Users, School, ListChecks, FileText, Wallet,
-  AlertCircle, BarChart3, Settings, LogOut, Menu, X, GraduationCap, UserCog,
+  AlertCircle, BarChart3, Settings, LogOut, Menu, X, GraduationCap, UserCog, KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import ChangePasswordModal from '../components/common/ChangePasswordModal';
 
 const NAV = [
   { to: '/', key: 'home', icon: LayoutDashboard, roles: ['admin', 'accountant'], end: true },
@@ -61,6 +62,8 @@ export default function AppLayout() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const { t, toggleLang } = useLanguage();
+  const [pwOpen, setPwOpen] = useState(false);
+  
 
   return (
     <div className="min-h-screen lg:flex">
@@ -111,6 +114,15 @@ export default function AppLayout() {
               <p className="text-sm font-semibold leading-tight">{user.name}</p>
               <p className="text-xs capitalize text-muted">{user.role}</p>
             </div>
+            <button
+              onClick={() => setPwOpen(true)}
+              className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-medium text-ink hover:bg-page"
+            >
+              <KeyRound className="h-5 w-5" />
+              <span className="hidden sm:inline">Change password</span>
+
+            </button>
+                {pwOpen && <ChangePasswordModal onClose={() => setPwOpen(false)} />}
             <button
               onClick={logout}
               className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-medium text-ink hover:bg-page"

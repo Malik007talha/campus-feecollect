@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import Modal from '../common/Modal';
 import VoucherStatusBadge from './VoucherStatusBadge';
 import VoucherPdfButtons from './VoucherPdfButtons';
+import DeleteVoucherModal from './DeleteVoucherModal';
 import RecordPaymentModal from '../payments/RecordPaymentModal';
 import ReceiptButtons from '../payments/ReceiptButtons';
+import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { voucherService } from '../../services/voucherService';
 import { paymentService } from '../../services/paymentService';
@@ -22,10 +24,12 @@ function Line({ label, children, strong }) {
 }
 
 export default function VoucherDetailsModal({ voucher: initial, onClose, onChanged }) {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const [voucher, setVoucher] = useState(initial);
   const [payments, setPayments] = useState([]);
   const [paying, setPaying] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Loads the latest voucher (with today's late fine) and its payments.
   const reload = useCallback(async () => {
@@ -47,6 +51,8 @@ export default function VoucherDetailsModal({ voucher: initial, onClose, onChang
 
   const subtotal = voucher.items.reduce((sum, i) => sum + i.amount, 0);
   const balance = voucher.total - voucher.paid;
+  const isAdmin = user.role === 'admin';
+  const canDelete = isAdmin && voucher.paid === 0 && voucher.status === 'unpaid' && payments.length === 0;
 
   if (paying) {
     return (
@@ -61,6 +67,19 @@ export default function VoucherDetailsModal({ voucher: initial, onClose, onChang
     );
   }
 
+  if (deleting) {
+    return (
+      <DeleteVoucherModal
+        voucher={voucher}
+        onClose={() => setDeleting(false)}
+        onDeleted={() => {
+          onChanged?.();
+          onClose();
+        }}
+      />
+    );
+  }
+
   return (
     <Modal
       title={`Voucher ${voucher.voucherNo}`}
@@ -68,6 +87,15 @@ export default function VoucherDetailsModal({ voucher: initial, onClose, onChang
       footer={
         <div className="flex w-full flex-wrap items-center gap-2 sm:justify-end">
           <VoucherPdfButtons voucherId={voucher._id} fileName={`fee-voucher-${voucher.voucherNo}`} />
+          {canDelete && (
+            <button
+              type="button"
+              onClick={() => setDeleting(true)}
+              className="min-h-11 rounded-md border border-danger-600 bg-white px-4 text-base font-medium text-danger-600 hover:bg-danger-50"
+            >
+              Delete voucher
+            </button>
+          )}
           {balance > 0 && (
             <button
               type="button"
@@ -124,6 +152,10 @@ export default function VoucherDetailsModal({ voucher: initial, onClose, onChang
           {formatRs(balance)}
         </Line>
       </dl>
+
+      {isAdmin && !canDelete && voucher.paid > 0 && (
+        <p className="mt-3 text-sm text-muted">A voucher with payments cannot be deleted, because payment records are kept.</p>
+      )}
 
       {payments.length > 0 && (
         <>
