@@ -23,7 +23,7 @@ import { notFound, errorHandler } from './middleware/errorHandler.js';
 const app = express();
 
 app.set('trust proxy', 1); // Render sits behind a proxy; needed so rate limits see the real visitor IP
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-site' } }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 const allowedOrigins = env.CLIENT_URL.split(',').map((o) => o.trim());
 

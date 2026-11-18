@@ -1,11 +1,16 @@
+# Dependencies
 node_modules/
+
+# Local environment and secrets
 .env
 .env.*
 !.env.example
+
+# Build output and local files
 dist/
-build/
+dist-ssr/
+coverage/
 *.log
 .DS_Store
+.idea/
 .vscode/
-coverage/
-uploads/

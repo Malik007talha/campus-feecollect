@@ -11,7 +11,7 @@ const accounts = [
     username: (process.env.SEED_ADMIN_USERNAME || 'admin').toLowerCase(),
     email: (process.env.SEED_ADMIN_EMAIL || 'admin@campusfeecollect.pk').toLowerCase(),
     password: process.env.SEED_ADMIN_PASSWORD,
-    passwordVar: 'SEED_ADMIN_PASSWORD',
+    passwordVar: 'Admin@1234',
   },
   {
     role: 'accountant',
@@ -19,7 +19,7 @@ const accounts = [
     username: (process.env.SEED_ACCOUNTANT_USERNAME || 'accountant').toLowerCase(),
     email: (process.env.SEED_ACCOUNTANT_EMAIL || 'accountant@campusfeecollect.pk').toLowerCase(),
     password: process.env.SEED_ACCOUNTANT_PASSWORD,
-    passwordVar: 'SEED_ACCOUNTANT_PASSWORD',
+    passwordVar: 'Account@123',
   },
 ];
 
