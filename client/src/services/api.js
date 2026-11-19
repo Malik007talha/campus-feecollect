@@ -2,7 +2,9 @@ import axios from 'axios';
 
 export const TOKEN_KEY = 'fc_token';
 
-const configuredBaseURL = import.meta.env.VITE_API_URL?.trim() || 'http://localhost:5000/api';
+// const configuredBaseURL = import.meta.env.VITE_API_URL?.trim() || 'http://localhost:5000/api';
+const configuredBaseURL = import.meta.env.VITE_API_URL?.trim() || 'https://api-campus-feecollect.onrender.com';
+
 const normalizedBaseURL = configuredBaseURL.replace(/\/+$/, '');
 const apiBaseURL = /\/api$/i.test(normalizedBaseURL) ? normalizedBaseURL : `${normalizedBaseURL}/api`;
 
