@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import User from '../models/User.js';
 import Student from '../models/Student.js';
 import Class from '../models/Class.js';
 import {
@@ -142,4 +143,6 @@ export const deleteStudent = asyncHandler(async (req, res) => {
 
   await student.deleteOne();
   sendSuccess(res, { message: `${student.name} was deleted` });
+  await student.deleteOne();
+  await User.deleteOne({ student: student._id }); // remove the student's portal login too
 });

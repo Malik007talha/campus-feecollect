@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-export const ROLES = ['admin', 'accountant', 'parent'];
+export const ROLES = ['admin', 'accountant', 'student', 'parent'];
 
 const userSchema = new mongoose.Schema(
   {
@@ -24,6 +24,8 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String, required: true, minlength: 8, select: false },
     role: { type: String, enum: ROLES, default: 'accountant' },
+    // Only for role "student": the student record this login belongs to.
+    student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', unique: true, sparse: true },
     isActive: { type: Boolean, default: true },
     lastLoginAt: { type: Date },
     passwordChangedAt: { type: Date },

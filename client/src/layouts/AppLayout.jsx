@@ -19,6 +19,7 @@ const NAV = [
   { to: '/reports', key: 'reports', icon: BarChart3, roles: ['admin', 'accountant'] },
   { to: '/users', key: 'users', icon: UserCog, roles: ['admin'] },
   { to: '/settings', key: 'settings', icon: Settings, roles: ['admin'] },
+  { to: '/portal-accounts', key: 'studentPortal', icon: GraduationCap, roles: ['admin'] },
 ];
 
 function SidebarContent({ onNavigate }) {

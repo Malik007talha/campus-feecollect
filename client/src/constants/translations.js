@@ -37,6 +37,7 @@ export const translations = {
     className: 'Class name',
     generateVouchers: 'Generate Vouchers',
     recordPayment: 'Record Payment',
+    studentPortal: 'Student Portal',
   },
   ur: {
     appName: 'کیمپس فی کلیکٹ',
@@ -76,5 +77,6 @@ export const translations = {
     className: 'کلاس کا نام',
     generateVouchers: 'واؤچرز بنائیں',
     recordPayment: 'ادائیگی درج کریں',
+    studentPortal: 'اسٹوڈنٹ پورٹل',
   },
 };

@@ -18,6 +18,8 @@ import defaulterRoutes from './routes/defaulter.routes.js';
 import reminderRoutes from './routes/reminder.routes.js';
 import reportRoutes from './routes/report.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
+import portalAccountRoutes from './routes/portalAccount.routes.js';
+import portalRoutes from './routes/portal.routes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -35,8 +37,6 @@ app.use(
       return callback(new Error(`Origin ${origin} is not allowed by CORS`));
     },
     credentials: true,
-
-    
   })
 );
 
@@ -52,7 +52,7 @@ const apiLimiter = rateLimit({
   handler: tooMany('Too many requests. Please wait a moment and try again.'),
 });
 
-// Only failed logins count, so staff are never locked out for logging in normally.
+// Only failed logins count, so staff and students are never locked out for logging in normally.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
@@ -78,6 +78,8 @@ app.use('/api/defaulters', defaulterRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/portal-accounts', portalAccountRoutes); // Admin: manage student logins
+app.use('/api/portal', portalRoutes); // Student: own vouchers only
 
 app.use(notFound);
 app.use(errorHandler);
