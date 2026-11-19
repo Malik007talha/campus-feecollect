@@ -2,8 +2,12 @@ import axios from 'axios';
 
 export const TOKEN_KEY = 'fc_token';
 
+const configuredBaseURL = import.meta.env.VITE_API_URL?.trim() || 'http://localhost:5000/api';
+const normalizedBaseURL = configuredBaseURL.replace(/\/+$/, '');
+const apiBaseURL = /\/api$/i.test(normalizedBaseURL) ? normalizedBaseURL : `${normalizedBaseURL}/api`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: apiBaseURL,
   timeout: 60000, // generous: free-tier servers can be slow to wake up
 });
 
