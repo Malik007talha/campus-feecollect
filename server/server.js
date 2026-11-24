@@ -2,6 +2,7 @@ import app from './app.js';
 import { env } from './config/env.js';
 import { connectDB } from './config/db.js';
 import { startFineJob, runFineRefresh } from './jobs/fine.job.js';
+import { startAutoReminderJob, catchUpAutoReminders } from './jobs/autoReminder.job.js';
 
 async function start() {
   await connectDB();
@@ -10,6 +11,8 @@ async function start() {
   });
   startFineJob();
   runFineRefresh('server start'); // catches up if the server was off at midnight
+  startAutoReminderJob();
+  catchUpAutoReminders();
 }
 
 start();

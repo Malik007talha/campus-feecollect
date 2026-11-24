@@ -10,6 +10,7 @@ import { getErrorMessage } from '../../services/api';
 import PageHeader from '../../components/common/PageHeader';
 import FormField, { inputClass } from '../../components/common/FormField';
 import FinePolicyForm from '../../components/settings/FinePolicyForm';
+import AutoReminderForm from '../../components/settings/AutoReminderForm';
 
 const schema = z.object({
   schoolName: z.string().trim().min(2, 'Please enter the school name').max(80, 'School name is too long'),
@@ -158,6 +159,9 @@ export default function SettingsPage() {
 <div className="mt-6">
   <FinePolicyForm />
 </div>
+<div className="mt-6">
+        <AutoReminderForm />
+      </div>
 </div>
 );
 }

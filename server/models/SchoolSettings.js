@@ -20,6 +20,10 @@ const schoolSettingsSchema = new mongoose.Schema(
     finePercent: { type: Number, default: 0, min: 0, max: 100 },
     fineGraceDays: { type: Number, default: 0, min: 0, max: 60 },
     fineCap: { type: Number, default: 0, min: 0 }, // 0 = no maximum
+
+    // Automatic email reminders before the due date
+    autoReminderEnabled: { type: Boolean, default: false },
+    autoReminderDays: { type: [Number], default: [3] }, // days before the due date; 0 = on the due date
   },
   { timestamps: true }
 );

@@ -30,3 +30,18 @@ export const finePolicySchema = z
       ctx.addIssue({ code: 'custom', path: ['finePercent'], message: 'Enter a percentage between 1 and 100' });
     }
   });
+
+export const autoReminderSchema = z
+.object({
+  enabled: z.boolean('Choose on or off'),
+  days: z
+    .array(z.number('Enter whole days').int('Enter whole days').min(0, 'Days cannot be negative').max(15, 'Up to 15 days before the due date'))
+    .max(3, 'Choose up to 3 reminder days')
+    .default([]),
+})
+.superRefine((d, ctx) => {
+  if (d.enabled && d.days.length === 0) {
+    ctx.addIssue({ code: 'custom', path: ['days'], message: 'Choose at least one reminder day' });
+  }
+})
+.transform((d) => ({ ...d, days: [...new Set(d.days)].sort((a, b) => b - a) }));

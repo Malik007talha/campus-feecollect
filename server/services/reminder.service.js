@@ -13,7 +13,7 @@ const short = (text) => String(text ?? '').slice(0, 300);
 export const emailConfigured = () => Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
 
 let transporter;
-function getTransporter() {
+export function getTransporter() {
   if (!transporter) {
     const port = Number(env.SMTP_PORT) || 587;
     // Google displays App Passwords in groups separated by spaces; SMTP expects the 16 characters only.
@@ -49,9 +49,9 @@ function emailText(v, school) {
 }
 
 // Errors that mean "email is not working at all", so there is no point trying the next student.
-const FATAL = new Set(['EAUTH', 'ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'EDNS']);
+export const FATAL = new Set(['EAUTH', 'ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'EDNS']);
 
-function friendly(err) {
+export function friendly(err) {
   if (err.code === 'EAUTH') return 'The email server refused the login. Check SMTP_USER and SMTP_PASS (use a Gmail App password).';
   if (FATAL.has(err.code)) return 'Could not connect to the email server. Check SMTP_HOST and SMTP_PORT, and the internet connection.';
   return short(err.message);
