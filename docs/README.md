@@ -5,7 +5,6 @@ Generate every student's monthly fee voucher in one click, print three-copy PDF 
 
 - **Live app:** https://campus-feecollect.vercel.app
 - **Live API:** https://api-campus-feecollect.onrender.com
-- **Demo video:** (add the link here)
 - **Developer:** Malik Talha Asif
 
 > The free servers go to sleep when idle. The first request after a break can take up to a minute.
